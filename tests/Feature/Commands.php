@@ -48,9 +48,12 @@ it('prints the tck command on a dry run', function (): void {
 });
 
 it('runs the tck command with a stand-in binary', function (): void {
-    putenv('A2A_TCK_PHP=true');
+    $stub = sys_get_temp_dir().DIRECTORY_SEPARATOR.'a2a-tck-stub.php';
+    file_put_contents($stub, "<?php\nexit(0);\n");
+    putenv('A2A_TCK_SCRIPT='.$stub);
     $this->artisan('a2a:tck')->assertSuccessful();
-    putenv('A2A_TCK_PHP');
+    putenv('A2A_TCK_SCRIPT');
+    unlink($stub);
 });
 
 it('generates an executor class', function (): void {

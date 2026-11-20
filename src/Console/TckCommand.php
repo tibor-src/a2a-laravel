@@ -18,19 +18,41 @@ final class TckCommand extends Command
 
     public function handle(): int
     {
-        $script = dirname(__DIR__, 2).'/scripts/tck.php';
+        $script = getenv('A2A_TCK_SCRIPT') ?: dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'scripts'.DIRECTORY_SEPARATOR.'tck.php';
         $queued = $this->option('queued') === true ? '1' : '0';
         $php = getenv('A2A_TCK_PHP') ?: PHP_BINARY;
-        $command = 'A2A_QUEUE='.escapeshellarg($queued).' '.escapeshellarg($php).' '.escapeshellarg($script);
 
         if ($this->option('dry-run') === true) {
-            $this->line($command);
+            $this->line($php.' '.$script);
 
             return self::SUCCESS;
         }
 
-        passthru($command, $status);
+        $env = getenv();
+        $env['A2A_QUEUE'] = $queued;
 
-        return $status;
+        $process = proc_open(
+            [$php, $script],
+            [
+                0 => ['pipe', 'r'],
+                1 => ['pipe', 'w'],
+                2 => ['pipe', 'w'],
+            ],
+            $pipes,
+            dirname(__DIR__, 2),
+            $env,
+        );
+
+        if (! is_resource($process)) {
+            return self::FAILURE; // @codeCoverageIgnore
+        }
+
+        fclose($pipes[0]);
+        $this->output->write((string) stream_get_contents($pipes[1]));
+        $this->output->write((string) stream_get_contents($pipes[2]));
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+
+        return proc_close($process);
     }
 }
