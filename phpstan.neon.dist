@@ -1,0 +1,49 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+    - vendor/pestphp/pest-plugin-phpstan/extension.neon
+
+parameters:
+    level: max
+    paths:
+        - src
+        - tests
+
+    reportUnmatchedIgnoredErrors: true
+
+    ignoreErrors:
+        -
+            identifier: missingType.iterableValue
+            path: tests
+        -
+            identifier: missingType.generics
+            path: tests
+        -
+            identifier: pest.expectation.redundant
+            path: tests
+        -
+            identifier: offsetAccess.nonOffsetAccessible
+            path: tests
+        -
+            identifier: offsetAccess.notFound
+            path: tests
+        -
+            identifier: binaryOp.invalid
+            path: tests
+        -
+            identifier: argument.templateType
+            path: tests
+        -
+            identifier: method.notFound
+            path: tests
+        -
+            identifier: argument.type
+            path: tests
+        -
+            identifier: return.type
+            path: tests
+        -
+            message: '#Illuminate\\Foundation\\Application\|null#'
+            path: tests
+        -
+            identifier: method.nonObject
+            path: tests

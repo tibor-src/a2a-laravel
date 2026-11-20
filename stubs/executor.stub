@@ -1,0 +1,64 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ namespace }};
+
+use TiborSrc\A2A\Id;
+use TiborSrc\A2A\Server\AgentExecutor;
+use TiborSrc\A2A\Server\EventQueue;
+use TiborSrc\A2A\Server\RequestContext;
+use TiborSrc\A2A\Types\Message;
+use TiborSrc\A2A\Types\Part;
+use TiborSrc\A2A\Types\Role;
+use TiborSrc\A2A\Types\Task;
+use TiborSrc\A2A\Types\TaskState;
+use TiborSrc\A2A\Types\TaskStatus;
+use TiborSrc\A2A\Types\TaskStatusUpdateEvent;
+
+final class {{ class }} implements AgentExecutor
+{
+    public function execute(RequestContext $context, EventQueue $queue): void
+    {
+        $task = $context->task;
+
+        if (! $task instanceof Task) {
+            $queue->write(new Message(
+                messageId: Id::uuid(),
+                role: Role::Agent,
+                parts: [Part::text('Done.')],
+            ));
+
+            return;
+        }
+
+        $queue->write(new TaskStatusUpdateEvent(
+            taskId: $task->id,
+            contextId: $task->contextId ?? $task->id,
+            status: TaskStatus::now(TaskState::Completed, new Message(
+                messageId: Id::uuid(),
+                role: Role::Agent,
+                parts: [Part::text('Done.')],
+                contextId: $task->contextId,
+                taskId: $task->id,
+            )),
+            final: true,
+        ));
+    }
+
+    public function cancel(RequestContext $context, EventQueue $queue): void
+    {
+        $task = $context->task;
+
+        if (! $task instanceof Task) {
+            return;
+        }
+
+        $queue->write(new TaskStatusUpdateEvent(
+            taskId: $task->id,
+            contextId: $task->contextId ?? $task->id,
+            status: TaskStatus::now(TaskState::Canceled),
+            final: true,
+        ));
+    }
+}

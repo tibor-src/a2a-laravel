@@ -1,0 +1,14 @@
+providers:
+  - TiborSrc\A2A\Laravel\A2AServiceProvider
+  - Workbench\App\Providers\WorkbenchServiceProvider
+
+migrations:
+  - database/migrations
+
+workbench:
+  start: /
+  install: true
+  discovers:
+    web: true
+    config: false
+    commands: false
