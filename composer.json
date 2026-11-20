@@ -28,7 +28,7 @@
         "tibor-src/a2a-php": "^0.1.0"
     },
     "require-dev": {
-        "guzzlehttp/guzzle": "^7.9",
+        "guzzlehttp/guzzle": "^8.5",
         "larastan/larastan": "^3.0",
         "laravel/pint": "^1.29.3",
         "orchestra/testbench": "^10.6|^11.0",
